@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Data
-
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

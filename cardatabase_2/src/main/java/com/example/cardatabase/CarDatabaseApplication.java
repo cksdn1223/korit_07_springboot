@@ -1,15 +1,14 @@
 package com.example.cardatabase;
 
-import com.example.cardatabase.domain.Car;
-import com.example.cardatabase.domain.CarRepository;
-import com.example.cardatabase.domain.Owner;
-import com.example.cardatabase.domain.OwnerRepository;
+import com.example.cardatabase.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.security.cert.Extension;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -21,10 +20,14 @@ public class CarDatabaseApplication implements CommandLineRunner {
 	// 여기에 생성자 주입부분 적겠습니다.
 	private final CarRepository repository;
 	private final OwnerRepository ownerRepository;
+	private final AppUserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    public CarDatabaseApplication(CarRepository repository, OwnerRepository ownerRepository) {
+    public CarDatabaseApplication(CarRepository repository, OwnerRepository ownerRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.ownerRepository = ownerRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public static void main(String[] args) {
@@ -52,5 +55,12 @@ public class CarDatabaseApplication implements CommandLineRunner {
 			logger.info("brand : {}, model : {}", car.getBrand(), car.getModel());
 		}
 
+		// AppUser 더미 데이터를 추가
+		userRepository.save(new AppUser("user",passwordEncoder.encode("user"),"USER"));
+		userRepository.save(new AppUser("admin", "$2a$12$QLn0SiGpQdYvmaTbHMdQf.YijUGJYRAUiVW.MIVi0y.3ZCWR9TRCu", "ADMIN"));
+
+
 	}
+
+
 }

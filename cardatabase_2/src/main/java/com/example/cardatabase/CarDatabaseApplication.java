@@ -21,13 +21,11 @@ public class CarDatabaseApplication implements CommandLineRunner {
 	private final CarRepository repository;
 	private final OwnerRepository ownerRepository;
 	private final AppUserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
 
-    public CarDatabaseApplication(CarRepository repository, OwnerRepository ownerRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public CarDatabaseApplication(CarRepository repository, OwnerRepository ownerRepository, AppUserRepository userRepository) {
         this.repository = repository;
         this.ownerRepository = ownerRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public static void main(String[] args) {
@@ -56,7 +54,7 @@ public class CarDatabaseApplication implements CommandLineRunner {
 		}
 
 		// AppUser 더미 데이터를 추가
-		userRepository.save(new AppUser("user",passwordEncoder.encode("user"),"USER"));
+		userRepository.save(new AppUser("user","$2a$12$rAvB.FGZJacQ9PIALTeACuDSIeNPtpQlLm65ptQ8zS.X6ZMq77wSW","USER"));
 		userRepository.save(new AppUser("admin", "$2a$12$QLn0SiGpQdYvmaTbHMdQf.YijUGJYRAUiVW.MIVi0y.3ZCWR9TRCu", "ADMIN"));
 
 

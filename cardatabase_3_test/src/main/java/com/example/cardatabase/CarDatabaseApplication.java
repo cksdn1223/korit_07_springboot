@@ -1,16 +1,16 @@
 package com.example.cardatabase;
 
 import com.example.cardatabase.domain.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.security.cert.Extension;
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 @SpringBootApplication
 public class CarDatabaseApplication implements CommandLineRunner {
 	private static final Logger logger = LoggerFactory.getLogger(
@@ -21,12 +21,6 @@ public class CarDatabaseApplication implements CommandLineRunner {
 	private final CarRepository repository;
 	private final OwnerRepository ownerRepository;
 	private final AppUserRepository userRepository;
-
-    public CarDatabaseApplication(CarRepository repository, OwnerRepository ownerRepository, AppUserRepository userRepository) {
-        this.repository = repository;
-        this.ownerRepository = ownerRepository;
-        this.userRepository = userRepository;
-    }
 
     public static void main(String[] args) {
 		SpringApplication.run(CarDatabaseApplication.class, args);

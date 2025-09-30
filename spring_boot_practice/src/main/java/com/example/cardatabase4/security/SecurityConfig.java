@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/save").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 필터 및 예외 처리기를 추가한 부분

@@ -1,8 +1,8 @@
-package com.example.cardatabase4.Controller;
+package com.example.cardatabase4.controller;
 
-import com.example.cardatabase4.Entity.Car;
-import com.example.cardatabase4.Repository.OwnerRepository;
-import com.example.cardatabase4.Service.CarService;
+import com.example.cardatabase4.entity.Car;
+import com.example.cardatabase4.repository.OwnerRepository;
+import com.example.cardatabase4.service.CarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,14 +1,13 @@
-package com.example.cardatabase4.Controller;
+package com.example.cardatabase4.controller;
 
-import com.example.cardatabase4.Entity.Owner;
-import com.example.cardatabase4.Service.OwnerService;
+import com.example.cardatabase4.entity.Owner;
+import com.example.cardatabase4.service.OwnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController

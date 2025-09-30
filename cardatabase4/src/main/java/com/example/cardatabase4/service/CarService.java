@@ -1,11 +1,10 @@
-package com.example.cardatabase4.Service;
+package com.example.cardatabase4.service;
 
-import com.example.cardatabase4.Entity.Car;
-import com.example.cardatabase4.Repository.CarRepository;
+import com.example.cardatabase4.entity.Car;
+import com.example.cardatabase4.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;

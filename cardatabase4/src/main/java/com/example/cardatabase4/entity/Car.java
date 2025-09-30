@@ -1,4 +1,4 @@
-package com.example.cardatabase4.Entity;
+package com.example.cardatabase4.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

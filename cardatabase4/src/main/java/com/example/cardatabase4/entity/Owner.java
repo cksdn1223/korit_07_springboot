@@ -1,4 +1,4 @@
-package com.example.cardatabase4.Entity;
+package com.example.cardatabase4.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

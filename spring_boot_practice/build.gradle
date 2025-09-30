@@ -25,11 +25,14 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Web 의존성 (Controller 역할을 위해 필요)
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// ⭐️ Thymeleaf 템플릿 엔진 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	// JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// 마리아 DB 관련

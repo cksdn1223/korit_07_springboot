@@ -1,7 +1,7 @@
-package com.example.cardatabase4.Service;
+package com.example.cardatabase4.service;
 
-import com.example.cardatabase4.Entity.Owner;
-import com.example.cardatabase4.Repository.OwnerRepository;
+import com.example.cardatabase4.entity.Owner;
+import com.example.cardatabase4.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

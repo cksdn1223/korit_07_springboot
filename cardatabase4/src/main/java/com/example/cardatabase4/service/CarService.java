@@ -32,7 +32,7 @@ public class CarService {
     // 차량 한 대 삭제
     public boolean deleteCar(Long id){
         if(carRepository.existsById(id)) {
-            carRepository.deleteById(id);
+            carRepeyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzU5NDY3MjgyfQ.g3z04ARUuZX0gTV55BERVkxCZtr9nnF47LeAli5qhMoository.deleteById(id);
             return true;
         }
         return false;

@@ -1,6 +1,6 @@
-package com.example.practice.security;
+package com.example.todolist.security;
 
-import com.example.practice.service.UserDetailsServiceImpl;
+import com.example.todolist.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,19 +28,20 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthenticationFilter authenticationFilter;
     private final AuthEntryPoint exceptionHandler;
+    private final AuthenticationFilter authenticationFilter;
 
-    // 패스워드 비교
+    // 패스워드 비교하는 부분
     public void configGlobal (AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
     }
-    // 패스워드 암호화 빈 추가
+
+    // 패스워드 암호화 시켜주는 빈
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    // 인증 빈 추가
+    // 인증 빈
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception{
         return authConfig.getAuthenticationManager();
@@ -48,20 +50,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS
+                ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/save").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                // 필터 및 예외 처리기를 추가한 부분
+                        .requestMatchers(HttpMethod.POST, "/api/save").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex ->
-                        ex.authenticationEntryPoint(exceptionHandler))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(exceptionHandler))
                 .build();
     }
 
@@ -76,7 +75,7 @@ public class SecurityConfig {
         config.setAllowCredentials(false);
         config.applyPermitDefaultValues();
 
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**",config);
         return source;
     }
 }

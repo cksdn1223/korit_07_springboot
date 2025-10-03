@@ -3,6 +3,7 @@ package com.example.todolist.service;
 import com.example.todolist.dto.AccountCredentialsRecord;
 import com.example.todolist.dto.AppUserRecord;
 import com.example.todolist.entity.AppUser;
+import com.example.todolist.exception.UsernameAlreadyExistsException;
 import com.example.todolist.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,16 +23,14 @@ public class AppUserService {
 
     public List<AppUserRecord> getAllUser() {
         return appUserRepository.findAll().stream()
-                .map(AppUserRecord::fromEntity)
-                .collect(Collectors.toList());
+                .map(appUser -> new AppUserRecord(appUser.getUsername(), appUser.getRole(), appUser.getTodos())).toList();
     }
 
     public ResponseEntity<AccountCredentialsRecord> saveUser(AccountCredentialsRecord request) {
         Optional<AppUser> searchUser = appUserRepository.findByUsername(request.username());
-        if(searchUser.isEmpty()){
-            appUserRepository.save(new AppUser(request.username(), passwordEncoder.encode(request.password()),"USER"));
+        if (searchUser.isEmpty()) {
+            appUserRepository.save(new AppUser(request.username(), passwordEncoder.encode(request.password()), "USER"));
             return new ResponseEntity<>(request, HttpStatus.CREATED);
-        }
-        else throw new RuntimeException("이미 존재하는 사용자입니다.");
+        } else throw new UsernameAlreadyExistsException("이미 존재하는 사용자입니다: " + request.username());
     }
 }

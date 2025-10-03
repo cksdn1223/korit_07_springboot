@@ -9,6 +9,8 @@ import com.example.todolist.exception.ResourceNotFoundException;
 import com.example.todolist.repository.AppUserRepository;
 import com.example.todolist.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,13 +28,13 @@ import java.util.Optional;
 public class TodoService {
     private final TodoRepository todoRepository;
     private final AppUserRepository appUserRepository;
-
+    // addtodo deletetodo 로그 추가하기위해 추가
+    private static final Logger log = LoggerFactory.getLogger(TodoService.class);
 
     public Todo findTodoById(Long id) {
         return todoRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException(id + " 을 가진 Todo를 찾을 수 없습니다."));
     }
-    // 소유권 검증을 위한 private 헬퍼 메소드
     private void validateOwnership(Todo todo, UserDetails userDetails) {
         if (!todo.getAppUser().getUsername().equals(userDetails.getUsername())) {
             throw new AccessDeniedException("이 리소스에 접근할 권한이 없습니다.");
@@ -51,6 +53,7 @@ public class TodoService {
 
     public TodoRequestRecord addTodo(TodoRequestRecord todoRequestRecord, UserDetails userDetails) {
         checkContent(todoRequestRecord.content());
+        log.info("Adding new todo for user: {}", userDetails.getUsername());
         AppUser appUser = appUserRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException(userDetails.getUsername() + " 을 찾을수 없음"));
         // 생성 시점에는 관계를 설정하지 않음 ⬇️
@@ -62,6 +65,7 @@ public class TodoService {
 
     public void deleteTodo(Long id, UserDetails userDetails) {
         Todo todo = findTodoById(id);
+        log.warn("Deleting todo id: {} by user: {}", id, userDetails.getUsername()); // 중요 작업은 WARN 레벨로
         validateOwnership(todo, userDetails);
         todoRepository.deleteById(id);
     }
@@ -95,4 +99,3 @@ public class TodoService {
         return new AppUserRecord(appUser.getUsername(), appUser.getRole(), appUser.getTodos());
     }
 }
-

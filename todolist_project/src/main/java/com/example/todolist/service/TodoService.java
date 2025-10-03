@@ -1,17 +1,19 @@
 package com.example.todolist.service;
 
-import com.example.todolist.dto.AccountCredentialsRecord;
-import com.example.todolist.dto.AppUserRecord;
-import com.example.todolist.dto.TodoRequestRecord;
-import com.example.todolist.dto.TodoUpdateRecord;
+import com.example.todolist.dto.*;
 import com.example.todolist.entity.AppUser;
 import com.example.todolist.entity.Todo;
+import com.example.todolist.exception.AccessDeniedException;
+import com.example.todolist.exception.NoContentException;
+import com.example.todolist.exception.ResourceNotFoundException;
 import com.example.todolist.repository.AppUserRepository;
 import com.example.todolist.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.function.EntityResponse;
@@ -25,49 +27,72 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final AppUserRepository appUserRepository;
 
+
+    public Todo findTodoById(Long id) {
+        return todoRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException(id + " 을 가진 Todo를 찾을 수 없습니다."));
+    }
+    // 소유권 검증을 위한 private 헬퍼 메소드
+    private void validateOwnership(Todo todo, UserDetails userDetails) {
+        if (!todo.getAppUser().getUsername().equals(userDetails.getUsername())) {
+            throw new AccessDeniedException("이 리소스에 접근할 권한이 없습니다.");
+        }
+    }
+    public void checkContent(String content) {
+        if (content == null || content.isBlank()) {
+            throw new NoContentException("내용은 비워둘 수 없습니다.");
+        }
+    }
+
+//    API 구현 로직들
     public TodoRequestRecord findById(Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(id + " 을 찾을 수 없습니다."));
-        return TodoRequestRecord.from(todo);
+        return TodoRequestRecord.from(findTodoById(id));
     }
 
-    public TodoRequestRecord addTodo(String content, String username){
-        AppUser appUser = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("찾을수 없음"));
-        Todo todo = new Todo(content, appUser);
-        return TodoRequestRecord.from(todoRepository.save(todo));
+    public TodoRequestRecord addTodo(TodoRequestRecord todoRequestRecord, UserDetails userDetails) {
+        checkContent(todoRequestRecord.content());
+        AppUser appUser = appUserRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(userDetails.getUsername() + " 을 찾을수 없음"));
+        // 생성 시점에는 관계를 설정하지 않음 ⬇️
+        Todo newTodo = new Todo(todoRequestRecord.content(), null);
+        appUser.addTodo(newTodo); // 편의 메소드를 통해 양방향 관계를 한번에 설정
+        return TodoRequestRecord.from(todoRepository.save(newTodo));
+        // save 할때 객체 리턴 해줌
     }
 
-    public void deleteTodo(Long id){
+    public void deleteTodo(Long id, UserDetails userDetails) {
+        Todo todo = findTodoById(id);
+        validateOwnership(todo, userDetails);
         todoRepository.deleteById(id);
     }
 
     @Transactional
-    public Optional<TodoUpdateRecord> updateTodoContent(Long id, String content){
-        return todoRepository.findById(id)
-                .map(todo -> {
-                    todo.setContent(content);
-                    return new TodoUpdateRecord(content);
-                });
+    public TodoUpdateRecord updateTodoContent(Long id, TodoUpdateRecord todoUpdateRecord, UserDetails userDetails) {
+        checkContent(todoUpdateRecord.content());
+        Todo todo = findTodoById(id);
+        validateOwnership(todo, userDetails);
+        todo.setContent(todoUpdateRecord.content());
+        return new TodoUpdateRecord(todo.getContent());
     }
 
     @Transactional
-    public Optional<TodoRequestRecord> updateTodoStatus(Long id){
-        return todoRepository.findById(id)
-                .map(todo -> {
-                    todo.setCompleted(!todo.isCompleted());
-                    return TodoRequestRecord.from(todo);
-                });
+    public TodoCompleteRecord updateTodoStatus(Long id, UserDetails userDetails) {
+        Todo todo = findTodoById(id);
+        validateOwnership(todo, userDetails);
+        todo.setCompleted(!todo.isCompleted());
+        return new TodoCompleteRecord(todo.getContent(), todo.isCompleted());
     }
 
     @Transactional
-    public ResponseEntity<AppUserRecord> clearCompletedTodos(UserDetails userdetails){
+    @PreAuthorize("hasRole('ADMIN')")  // 이 메소드는 ADMIN 역할만 호출 가능
+    public AppUserRecord clearCompletedTodos(UserDetails userdetails) {
         AppUser appUser = appUserRepository.findByUsername(userdetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found: " + userdetails.getUsername()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userdetails.getUsername()));
+//        if (!appUser.getRole().equals("ROLE_ADMIN")) { // 이렇게 하지말고 @PreAuthorize("hasRole('ADMIN')") 이거로 간편하게
+//            throw new AccessDeniedException("이 리소스에 접근할 권한이 없습니다.");
+//        }
         appUser.getTodos().removeIf(Todo::isCompleted);
-        return new ResponseEntity<>(new AppUserRecord(appUser.getUsername(), appUser.getRole(), appUser.getTodos()), HttpStatus.OK);
+        return new AppUserRecord(appUser.getUsername(), appUser.getRole(), appUser.getTodos());
     }
-
-
 }
 

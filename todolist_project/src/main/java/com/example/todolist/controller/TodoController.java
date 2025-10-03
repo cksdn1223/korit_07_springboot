@@ -1,6 +1,7 @@
 package com.example.todolist.controller;
 
 import com.example.todolist.dto.AppUserRecord;
+import com.example.todolist.dto.TodoCompleteRecord;
 import com.example.todolist.dto.TodoRequestRecord;
 import com.example.todolist.dto.TodoUpdateRecord;
 import com.example.todolist.service.AppUserService;
@@ -24,31 +25,28 @@ public class TodoController {
     }
 
     @PostMapping("/todos/save")
-    public ResponseEntity<TodoRequestRecord> addTodo(@RequestBody TodoRequestRecord content, @AuthenticationPrincipal UserDetails userDetails){
-        return new ResponseEntity<>(todoService.addTodo(content.content(), userDetails.getUsername()),HttpStatus.OK);
+    public ResponseEntity<TodoRequestRecord> addTodo(@RequestBody TodoRequestRecord todoRequestRecord, @AuthenticationPrincipal UserDetails userDetails){
+        return new ResponseEntity<>(todoService.addTodo(todoRequestRecord, userDetails),HttpStatus.OK);
     }
 
     @DeleteMapping("/todos/{id}")
-    public void deleteTodo(@PathVariable Long id){
-        todoService.deleteTodo(id);
+    public ResponseEntity<TodoUpdateRecord> deleteTodo(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails){
+        todoService.deleteTodo(id, userDetails);
+        return ResponseEntity.noContent().build();  // 204 No Content
     }
 
     @PatchMapping("/todos/content/{id}")
-    public ResponseEntity<TodoUpdateRecord> updateTodoContent(@PathVariable Long id, @RequestBody TodoUpdateRecord content){
-        return todoService.updateTodoContent(id,content.content())
-                .map(todo -> ResponseEntity.ok().body(todo))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TodoUpdateRecord> updateTodoContent(@PathVariable Long id, @RequestBody TodoUpdateRecord todoUpdateRecord, @AuthenticationPrincipal UserDetails userDetails){
+        return new ResponseEntity<>(todoService.updateTodoContent(id, todoUpdateRecord, userDetails),HttpStatus.OK);
     }
 
     @PatchMapping("/todos/{id}")
-    public ResponseEntity<TodoRequestRecord> updateTodoStatus(@PathVariable Long id) {
-        return todoService.updateTodoStatus(id)
-                .map(todo -> ResponseEntity.ok().body(todo))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TodoCompleteRecord> updateTodoStatus(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return new ResponseEntity<>(todoService.updateTodoStatus(id, userDetails),HttpStatus.OK);
     }
 
     @DeleteMapping("/todos/completed")
     public ResponseEntity<AppUserRecord> clearCompletedTodos(@AuthenticationPrincipal UserDetails userDetails) {
-        return todoService.clearCompletedTodos(userDetails);
+        return new ResponseEntity<>(todoService.clearCompletedTodos(userDetails),HttpStatus.OK);
     }
 }

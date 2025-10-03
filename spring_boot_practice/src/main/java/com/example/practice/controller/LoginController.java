@@ -3,6 +3,7 @@ package com.example.practice.controller;
 import com.example.practice.dto.AccountCredentials;
 import com.example.practice.service.JwtService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,10 +33,16 @@ public class LoginController {
         // 토큰 생성
         String jwts = jwtService.getToken(auth.getName());
 
-        // 생성된 토큰으로 응답을 build()
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwts)
-                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
+        // HttpOnly 쿠키 생성
+        ResponseCookie cookie = ResponseCookie.from("token", jwts)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(60 * 60) // 1시간
                 .build();
+
+        // 생성된 쿠키를 헤더에 담아 응답
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body("로그인에 성공했습니다. 이제 주소창에서 직접 API를 호출할 수 있습니다.");
     }
 }

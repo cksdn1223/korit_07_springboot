@@ -1,0 +1,49 @@
+package com.example.todolist.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
+
+
+@RestControllerAdvice   // @RestController에서 발생하는 예외를 전역적으로 처리합니다.
+public class GlobalExceptionHandler {
+
+    // 리소스를 찾지 못했을 때 발생하는 사용자 지정 예외
+    // @ExceptionHandler: 특정 예외 클래스를 지정하여 처리할 메소드를 정의합니다.
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        // 클라이언트에게 보여줄 에러 메시지를 일관된 형식으로 구성합니다.
+        Map<String, String> errorResponse = Map.of(
+                "status", "404",
+                "error", "Not Found",
+                "message", ex.getMessage() // 서비스 계층에서 전달한 메시지를 포함합니다.
+        );
+        // 구성된 에러 메시지와 함께 HTTP 404 (Not Found) 상태 코드를 응답합니다.
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    // 권한이 없을 때 발생하는 예외 처리
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> errorResponse = Map.of(
+                "status", "403",
+                "error", "Forbidden",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    // Todo의 Content를 조작할때 비어있거나 공백이면 발생하는 예외 처리
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<Map<String, String>> handleNoContentException(NoContentException ex) {
+        Map<String, String> errorResponse = Map.of(
+                "status", "400",
+                "error", "Bad Request",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+}

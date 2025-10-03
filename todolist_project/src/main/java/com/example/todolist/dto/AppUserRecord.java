@@ -6,12 +6,4 @@ import com.example.todolist.repository.AppUserRepository;
 
 import java.util.List;
 
-public record AppUserRecord(String username, String role, List<Todo> todos) {
-    public static AppUserRecord fromEntity(AppUser appUser) {
-        return new AppUserRecord(
-                appUser.getUsername(),
-                appUser.getRole(),
-                appUser.getTodos()
-        );
-    }
-}
+public record AppUserRecord(String username, String role, List<Todo> todos) {}

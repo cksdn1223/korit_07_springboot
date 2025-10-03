@@ -53,8 +53,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/save").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login", "/user/save").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/*.html").permitAll() // HTML 파일 접근 허용
                         .requestMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

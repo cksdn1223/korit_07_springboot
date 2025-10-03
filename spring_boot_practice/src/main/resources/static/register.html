@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+</head>
+<body>
+    <h1>회원가입</h1>
+    <form id="registerForm">
+        <label for="username">사용자 이름:</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">비밀번호:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="submit">가입하기</button>
+    </form>
+    <div id="response"></div>
+    <br>
+    <a href="/login.html">로그인 페이지로 이동</a>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const responseDiv = document.getElementById('response');
+
+            try {
+                const response = await fetch('/user/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    responseDiv.innerHTML = `<p><strong>성공:</strong></p><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    responseDiv.innerHTML = `<p><strong>오류:</strong></p><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<p><strong>네트워크 오류:</strong></p><pre>${error.message}</pre>`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -27,8 +27,8 @@ public class TodoController {
         return ResponseEntity.ok(todoService.createTodo(todoRequestRecord));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, TodoRequestDto updateDto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody TodoRequestDto updateDto) {
         return ResponseEntity.ok(todoService.updateTodoContent(id, updateDto));
     }
 
@@ -38,12 +38,12 @@ public class TodoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/toggle")
     public ResponseEntity<Todo> toggleTodoStatus(@PathVariable Long id) {
         return ResponseEntity.ok(todoService.toggleTodoStatus(id));
     }
 
-    @DeleteMapping("/clear")
+    @DeleteMapping("/completed")
     public ResponseEntity<Void> clearCompletedTodos() {
         todoService.clearCompletedTodos();
         return ResponseEntity.noContent().build();

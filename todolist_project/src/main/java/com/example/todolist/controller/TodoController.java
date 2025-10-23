@@ -14,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class TodoController {
     @GetMapping("/todos/{id}")
     public ResponseEntity<TodoRequestRecord> find(@PathVariable Long id) {
         return new ResponseEntity<>(todoService.findById(id),HttpStatus.OK);
+    }
+    @GetMapping("/todos")
+    public ResponseEntity<List<TodoCompleteRecord>> getAllTodo(@AuthenticationPrincipal UserDetails userDetails) {
+        return new ResponseEntity<>(todoService.findAllByUsername(userDetails),HttpStatus.OK);
     }
 
     @PostMapping("/todos/save")

@@ -4,24 +4,18 @@ import com.example.todolist.dto.*;
 import com.example.todolist.entity.AppUser;
 import com.example.todolist.entity.Todo;
 import com.example.todolist.exception.AccessDeniedException;
-import com.example.todolist.exception.NoContentException;
 import com.example.todolist.exception.ResourceNotFoundException;
 import com.example.todolist.repository.AppUserRepository;
 import com.example.todolist.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.function.EntityResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -109,7 +103,7 @@ public class TodoService {
         // todo의 완료상태를 반대상태로 변경
         todo.setCompleted(!todo.isCompleted());
         // record로 상태를 바꾼 todo의 content, 완료상태 리턴
-        return new TodoCompleteRecord(todo.getContent(), todo.isCompleted());
+        return new TodoCompleteRecord(todo.getId(), todo.getContent(), todo.isCompleted());
     }
 
     @Transactional
@@ -122,6 +116,13 @@ public class TodoService {
         appUser.getTodos().removeIf(Todo::isCompleted);
         // record로 이름 역할 todo리스트들 반환
         return new AppUserRecord(appUser.getUsername(), appUser.getRole(), appUser.getTodos());
+    }
+
+    public List<TodoCompleteRecord> findAllByUsername(UserDetails userdetails) {
+        AppUser appUser = appUserRepository.findByUsername(userdetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userdetails.getUsername()));
+        return todoRepository.findAllByAppUser_Username(appUser.getUsername()).stream().map(todo ->
+                new TodoCompleteRecord(todo.getId(), todo.getContent(), todo.isCompleted())).toList();
     }
 }
 

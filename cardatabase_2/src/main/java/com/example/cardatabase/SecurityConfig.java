@@ -68,6 +68,12 @@ public class SecurityConfig {
     // 필터 체인 빈 추가
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 개발 중 로그인 포함 모든 HTTP 메서드 요청 허용
+//        http.csrf(csrf -> csrf.disable())
+//                .cors(withDefaults())
+//                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+//        로그인 엔드 포인트 Post 요청 제외 나머지 인증 필요
         http.csrf(csrf -> csrf.disable())
                 .cors(withDefaults())
                 .sessionManagement(sessionManagement ->

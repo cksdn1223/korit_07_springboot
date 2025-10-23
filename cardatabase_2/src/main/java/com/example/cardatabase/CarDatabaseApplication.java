@@ -47,7 +47,10 @@ public class CarDatabaseApplication implements CommandLineRunner {
 		repository.save(new Car("Honda", "CR-V", "Black-White", "987654", 2024, 45000000, owner2));
 		// -> 이상의 코드는 testdb 내의 CAR 테이블 내에 3 개의 row를 추가하여 저장한다는 의미입니다.
 		// Java 기준으로는 객체 세 개를 만들어서 저장했다고 볼 수 있겠네요.
-
+        repository.save(new Car("Chevrolet", "Equinox", "Grey", "CHEQN24HIJ3456789", 2024, 33000000, owner1));
+        repository.save(new Car("Ford", "Ranger", "Black", "FRRGR23KLM7890123", 2023, 36000000, owner2));
+        repository.save(new Car("Toyota", "4Runner", "Silver", "TO4RN25NPR1234567", 2025, 51000000, owner1));
+        repository.save(new Car("Kia", "Ceed", "White", "KICED24STU5678901", 2024, 27500000, owner2));
 		// 모든 자동차를 가져와서 Console에 로깅해보도록 하겠습니다.
 		for(Car car : repository.findAll()){
 			logger.info("brand : {}, model : {}", car.getBrand(), car.getModel());
